@@ -167,18 +167,20 @@ u = Function(V)
 
 # Define points to evaluate temperature
 eval_pts = 5
-pipe_rvals = np.linspace(r0-t_wall, r0, eval_pts)
+pipe_rvals = np.linspace(r0, r0 - t_wall, eval_pts)
 sleeve_zvals = np.linspace(0, t_wall, eval_pts)
-p_pipe = [(val, 0.0) for val in pipe_rvals]
-p_sleeve = [(r0, val) for val in sleeve_zvals]
+p_pipe = [(val, -0.5*(t_wall + t_gap)) for val in pipe_rvals]
+p_sleeve = [(r0 + t_gap + 0.5*t_wall, val) for val in sleeve_zvals]
+p_weld = (r0 + 0.5*t_sleeve, -0.5*t_sleeve)
 
-
+# set up output variables
 dt_output = 0.1
 output_steps = int(dt_output/dt)
 sleeve_temp = np.array([u_n(point) for point in p_sleeve])
 pipe_temp = np.array([u_n(point) for point in p_pipe])
+weld_temp = [u_n(p_weld)]
 time_array = np.linspace(0, T, int(T/dt_output) + 1)
-
+im_number = 1
 
 # Run the time-dependent analysis
 for n in range(tsteps):
@@ -191,15 +193,18 @@ for n in range(tsteps):
     u_n.assign(u)
 
     if (n+1) % output_steps == 0:
+        # output solution to paraview file
         solution_file << (u_n, t)
 
+        # find the temperature at the specified points
         sleeve_temp1 = np.array([u_n(point) for point in p_sleeve])
         pipe_temp1 = np.array([u_n(point) for point in p_pipe])
         sleeve_temp = np.vstack((sleeve_temp, sleeve_temp1))
         pipe_temp = np.vstack((pipe_temp, pipe_temp1))
+        weld_temp.append(u_n(p_weld))
 
+        # create plots
         fig, ax = plt.subplots(2, 2)
-
         c = plot(u, title='Time = %.2fs' % t, mode='color', vmin=u_amb, vmax=u_melt)
         plt.colorbar(c, label='Temperature(F)')
         plt.ylim([-2*t_wall, t_wall])
@@ -217,14 +222,26 @@ for n in range(tsteps):
             ax[0, n2].plot(time_array, np.ones_like(time_array) * u_haz, 'r--',
                            label='HAZ cutoff')
             ax[0, n2].legend(loc='upper left')
-            ax[0, n2].set_ylim([0, 1.2 * u_melt])
+            ax[0, n2].set_ylim([0, 1.4 * u_melt])
             ax[0, n2].set_xlim([0, T])
             ax[0, n2].set_xlabel('Time (s)')
 
+        ax[1, 0].plot(time_array[:pipe_temp.shape[0]], weld_temp, label='Weld temperature')
+        ax[1, 0].plot(time_array, np.ones_like(time_array) * u_melt, 'k--',
+                       label='melting point')
+        ax[1, 0].plot(time_array, np.ones_like(time_array) * u_haz, 'r--',
+                       label='HAZ cutoff')
+        ax[1, 0].legend(loc='upper left')
+        ax[1, 0].set_ylim([0, 1.8 * u_melt])
+        ax[1, 0].set_xlim([0, T])
+        ax[1, 0].set_xlabel('Time (s)')
+
+        ax[1, 0].set_title('Weld Temperature(F)')
         ax[0, 1].set_title('Temperatures in pipe(F)')
         ax[0, 0].set_title('Temperatures in sleeve(F)')
         plt.tight_layout()
-        plt.savefig("Results//t%0*d_ms.png"%(4, int(t*1000)), dpi=96)
+        plt.savefig("Results//linear_model%0*d.png" % (4, im_number), dpi=96)
+        im_number += 1
         plt.close()
 
 
