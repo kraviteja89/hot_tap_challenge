@@ -3,7 +3,6 @@ import mshr
 import matplotlib.pyplot as plt
 from os import mkdir, path
 import numpy as np
-from celluloid import Camera
 
 """
 2D Axisymmetric heat transfer model of welding a cylindrical sleeve to a pipeline
@@ -23,9 +22,9 @@ boundaries.pvd   - ParaView data file showing three boundary subsets marked
                     1:G-process 2:G-insulated 3:G-ambient
 hot_weld_sol.pvd - Solutions of the time-dependent problem over the entire mesh  
 """
-
-if not path.exists('Results'):
-    mkdir('Results')
+result_path = "Results"
+if not path.exists(result_path):
+    mkdir(result_path)
 
 plt.rcParams["figure.figsize"] = (12, 8)
 
@@ -74,7 +73,7 @@ mesh = mshr.generate_mesh(total_area, mesh_density)
 # mark different domains and redefine the measure dx
 domain_markers = MeshFunction('size_t', mesh, mesh.topology().dim(), mesh.domains())
 dx = Measure('dx', domain=mesh, subdomain_data=domain_markers)
-domain_file = File('Results//domains.pvd')
+domain_file = File(result_path + '//domains.pvd')
 domain_file << domain_markers
 
 # Un-comment the next two lines to view the mesh
@@ -119,7 +118,7 @@ bx1.mark(boundary_markers, 1)
 bx2.mark(boundary_markers, 2)
 
 # save boundary IDs to file
-boundary_file = File('Results//boundaries.pvd')
+boundary_file = File(result_path + '//boundaries.pvd')
 boundary_file << boundary_markers
 
 # redefine the measure ds
@@ -148,13 +147,14 @@ solve(a == L, u)
 u_n.assign(u)
 
 # write out the inital solution
-solution_file = File('Results//hot_weld_solution.pvd')
+solution_file = File(result_path + '//hot_weld_solution.pvd')
 solution_file << (u_n, 0)
 
 ## Step 5 - Time dependent solution
 
 # Redefine the linear and bilinear parts for the time-dependent problem
-f = Expression('f_max*(0.5 + 0.5*cos(pi*(5+t)/5))', degree=2, t=t, f_max=f_max)
+f = Expression('t <= 10.0 ? f_max*(0.5 + 0.5*cos(pi*(5+t)/5)) : 0.0',
+               degree=2, t=t, f_max=f_max)
 u = TrialFunction(V)
 v = TestFunction(V)
 
@@ -240,7 +240,7 @@ for n in range(tsteps):
         ax[0, 1].set_title('Temperatures in pipe(F)')
         ax[0, 0].set_title('Temperatures in sleeve(F)')
         plt.tight_layout()
-        plt.savefig("Results//linear_model%0*d.png" % (4, im_number), dpi=96)
+        plt.savefig(result_path + "//linear_model%0*d.png" % (4, im_number), dpi=96)
         im_number += 1
         plt.close()
 
