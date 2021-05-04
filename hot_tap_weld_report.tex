@@ -4,6 +4,7 @@
 \usepackage{physics}
 \usepackage{empheq}
 \usepackage{amssymb}
+\usepackage{gensymb}
 \usepackage{graphicx}
 \usepackage{wrapfig}
 \usepackage[margin=1.0in]{geometry}
@@ -100,7 +101,7 @@ The problem is implemented using an axisymmetric geometry in FEnics. First order
 
 \begin{align}
 &find ~u^{n+1} \in \mathcal{P}^1,~s.t.~ \forall v \in \mathcal{P}^1, \qquad  a(u^{n+1},v) = L(v) \label{feEqn} \\
-a(u^{n+1},v) &= \int_\Omega \rho c_p u^{n+1} v dx \int_\Omega \kappa \grad u \cdot \grad v ~dt ~dx  + \int_{\Gamma_a} h_a u v ~dt ~ds + \int_{\Gamma_p} h_p u v ~dt ~ds \label{feBilinear} \\
+a(u^{n+1},v) &= \int_\Omega \rho c_p u^{n+1} v dx \int_\Omega \kappa \grad u^{n+1} \cdot \grad v ~dt ~dx  + \int_{\Gamma_a} h_a u^{n+1} v ~dt ~ds + \int_{\Gamma_p} h_p u^{n+1} v ~dt ~ds \label{feBilinear} \\
 L(v) &= \int_\Omega f(r,z,t^{n+1})  v ~dt ~dx + \int_{\Gamma_a} h_a u_a v ~dt ~ds + \int_{\Gamma_p} h_p u_p v ~dt ~ds + \int_\Omega \rho c_p u^{n} v dx \label{feLinear}
 \end{align}
 
@@ -114,7 +115,7 @@ This model is 2D axisymmetric,which means that the 2D geometry in the model repr
 \end{align}
 
 
-The code is available at \\
+The code is available at \url{https://github.com/kraviteja89/hot_tap_challenge}\\
 
 \textit{Note: In terms of spatial derivatives, the weak formulation of this problem only involves gradients of scalars. The components of gradient of scalars in the first two coordinates look identical for the r-z coordinates and x-y coordinates, and therefore the built-in grad function is used. For problems involving higher order derivatives and gradients of vectors, custom functions need to be written for calculating spatial derivatives in 2D axisymmetric coordinates.}
 
@@ -128,14 +129,31 @@ L(v) &= \int_{\Gamma_a} h_a u_a v ~ds + \int_{\Gamma_p} h_p u_p v ~ds \label{ini
 \end{align}
 
 \section{Results and observations}
+
 \subsection{Overheating with proposed heating}
-	The temperature profile in the model and the temporal evolution of the temperature at the midpoint of the weld facing the pipe and the sleeve are shown in figure 2. This model suggests that almost the entire length of the sleeve and the pipe melt during the welding process. Since all the material parameters closely match the properties of stainless steel, I conclude that the heating rate in the proposed problem is too high. 
+
+	The temperature profile in the model and the temporal evolution of the temperature in the sleeve, the pipe and the weld are shown in figure \ref{fig2}. This model suggests that almost the entire length of the sleeve and the pipe melt during the welding process, and the peak temperatures exceed 10 times the melting point. Since all the material parameters closely match the properties of stainless steel, I conclude that the heating rate in the proposed problem is too high.\\ 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{old_model.png}
+\caption{With the given heat source density, the temperature of the weld and the substrates exceed 10 times the melting point of steel}
+\label{fig2}
+\end{figure}
 
 \textbf{For the rest of the report, I used a maximum heating rate $f_{max}$ of $270~ BTU/s-in^3$.}
 
-\subsection{Heat affected zone}
-	The results of the model with the modified cooling rate are shown in figure 3. The weld material heats up and reaches melting temperature within ? seconds. The weld pool starts forming at the pipe in ? seconds. The temperatures and the cooling rates at different points on the pipe are shown in figure 3B. Assuming a cutoff of $1475 \deg F$ ($1075 K$)\autocitel{cheng2004weld}, the width of the heat affected zone is ?in. These temperature profiles can be used as an input for a microstructure model to estimate the possibility of cold cracking. 
 
+\subsection{Heat affected zone}
+	The results of the model with the modified cooling rate are shown in figure \ref{fig3}. The depth in figure \ref{fig3}a represents the distance of the point of temperature measurement from the weld. The points are chosen along the centerline of the weld. The heat affected zone (HAZ) spans the entire thickness of the pipeline, assuming a cutoff of $1475 \degree F$ ($1075 K$)\autocitel{cheng2004weld}for the HAZ. The weld material heats up and reaches melting temperature within 4 seconds,while the weld pool starts forming at the pipe  and sleeve in in 5 and 4.5 seconds respectively. The cooling effect of the fluid in the pipeline is depicted by the difference in temperature history between the sleeve and the pipe. \\ 
+	These temperature profiles can be used as an input for a microstructure model(see discussion) to estimate the possibility of cold cracking. Alternatively, the peak temperatures and the cooling time between $1500-1000 \degree F$ ($800-500 \degree C$)can be used to estimate the possibility of cold cracking \autocitel{lobanov2013formation}. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12 cm]{linear_results.png}
+	\caption{ Temperature history \textbf{a.} at different points in the sleeve and pipe and \textbf{b.} the midpoint of the weld. \textbf{c.} The temperature profile in the neighborhood of the weld at $t = 5s$ and $t = 10s$ }
+	\label{fig3}
+\end{figure}
 
 \section{Discussion}
 The simulation presented here has several limitations. It is based on a linear heat transfer model and does not simulate the latent heat of melting and solidification, the interface between the solid and fluid phases and the the formation of different metallurgical phases. The fluid flow in the pipes is not explicitly modeled and therefore the effect of the fluid flow on the cooling rate and the effect of heating on the fluid flow cannot be fully understood by this model. The heating of the weld element is assumed to be a volumetric heat term, while in reality welding is performed by passing a heating element over the weld zone. Finally, the assumptions of the geometry made in this model are not completely true-to-life, as the geometry of attachments to pipelines are not usually symmetric around the pipe's axis. Some of these limitations will be addressed here. 
@@ -163,8 +181,18 @@ q(x,y,z,t) &= \frac{6\sqrt{3}f_bQ}{abc\pi^{\frac{3}{2}}}e^{-3x^2/a^2}e^{-3y^2/a^
 \subsection{Microstructure modeling}
 	Computational thermodynamic and kinetic calculations are used to estimate the distribution of various microstructural phases such as martensite and ferrite, and the hardness of the weld and the heat affected zone. The thermodynamic models are used to calculate the free energy of the mixture as a function of the temperature and the phase composition. The free energy minimization is used to calculate the equilibrium compositions. The equilibrium reactions and the kinetics of the reactions, along with the temperature history from heat simulations are used to predict the microstructure in the heat affected zone after cooling. Some models perform heat transfer calculations separately to predict the temperatures history and use it as an input for microstructure prediction \autocitel{cheng2004weld}{mazurovsky2003phenomenological}{babu2001modeling}, while other models couple the heat transfer and microstructural calculations \autocitel{henwood1988coupled}{watt1988algorithm}{li1998computational}.   
 
-\subsection{Model extensions}
-\subsection{Possible improvement of the model}
+\subsection{Modeling latent heat}
+	The model presented in the previous section does not simulate the effect of change in enthalpy during melting. There are several methods of simulating the effect of enthalpy. One of the most technically sound method is to solve the Stephan problem, where the solid and fluid phases around the melt pool and heat transfer their interface is explicitly modeled \autocitel{kasuya1997stefan}. The Stephan problem can be computationally expensive and there are several simplified models, where a temperature-dependent capacitance is used to account for the enthalpy change during heating with spatial or temporal averaging \autocitel{pham1995comparison}.
+	
+	I chose to model total enthalpy ($H(u)$) at temperature $u$, which is a function of phase and temperature, by a smooth sigmoid function (equation \ref{enthalpy}). In equation \ref{enthalpy}, $c_{p1}$ is the specific heat due to temperature and $c_{p1}$ is the latent heat. The sigmoid function is centered around the melting point$u_{melt}$  and smoothed by the factor $a_{c_p}$. For the $n^{th}$ time step the effective specific heat is given by equation \ref{spec}, which was proposed by Morgan \textit{et al}\autocitel{morgan1978improved}. A specific heat of $106 BTU/lb$ was used  
+	
+\begin{align}
+H(u) &= c_{p1} u + c_{p2} \frac{1}{1 + e^{-a_{c_p}(u - u_{melt})}} \label{enthalpy} \\
+c_p^n &= \begin{cases}
+c_{p1} \qquad \qquad \qquad if ~u^n = u^{n-1} \\
+\frac{H(u^n) - H(u^{n-1})}{u^n - u^{n-1}}
+ ~~~ if ~u^n \neq u^{n-1} \end{cases}\label{spec}
+\end{align}    
 
 
 
