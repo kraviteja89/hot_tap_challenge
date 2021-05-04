@@ -114,7 +114,7 @@ This model is 2D axisymmetric,which means that the 2D geometry in the model repr
 \end{align}
 
 
-The code is available at \\
+The code is available at \url{https://github.com/kraviteja89/hot_tap_challenge}\\
 
 \textit{Note: In terms of spatial derivatives, the weak formulation of this problem only involves gradients of scalars. The components of gradient of scalars in the first two coordinates look identical for the r-z coordinates and x-y coordinates, and therefore the built-in grad function is used. For problems involving higher order derivatives and gradients of vectors, custom functions need to be written for calculating spatial derivatives in 2D axisymmetric coordinates.}
 
@@ -128,10 +128,20 @@ L(v) &= \int_{\Gamma_a} h_a u_a v ~ds + \int_{\Gamma_p} h_p u_p v ~ds \label{ini
 \end{align}
 
 \section{Results and observations}
+
 \subsection{Overheating with proposed heating}
-	The temperature profile in the model and the temporal evolution of the temperature at the midpoint of the weld facing the pipe and the sleeve are shown in figure 2. This model suggests that almost the entire length of the sleeve and the pipe melt during the welding process. Since all the material parameters closely match the properties of stainless steel, I conclude that the heating rate in the proposed problem is too high. 
+
+	The temperature profile in the model and the temporal evolution of the temperature in the sleeve, the pipe and the weld are shown in figure. This model suggests that almost the entire length of the sleeve and the pipe melt during the welding process, and the peak temperatures exceed 10 times the melting point. Since all the material parameters closely match the properties of stainless steel, I conclude that the heating rate in the proposed problem is too high.\\ 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{old_model.png}
+\caption{With the given heat source density, the temperature of the weld and the substrates exceed 10 times the melting point of steel}
+\label{fig2}
+\end{figure}
 
 \textbf{For the rest of the report, I used a maximum heating rate $f_{max}$ of $270~ BTU/s-in^3$.}
+
 
 \subsection{Heat affected zone}
 	The results of the model with the modified cooling rate are shown in figure 3. The weld material heats up and reaches melting temperature within ? seconds. The weld pool starts forming at the pipe in ? seconds. The temperatures and the cooling rates at different points on the pipe are shown in figure 3B. Assuming a cutoff of $1475 \deg F$ ($1075 K$)\autocitel{cheng2004weld}, the width of the heat affected zone is ?in. These temperature profiles can be used as an input for a microstructure model to estimate the possibility of cold cracking. 
