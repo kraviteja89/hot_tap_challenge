@@ -1,9 +1,13 @@
 # hot_tap_challenge
 Code and report for an axisymmetric model to simulate hot tap welding process
 
-
 Code files:
 linear_model.py
+nonlinear_model. py
+
+The animations of the simulation results are shown in 
+linear_model.mp4
+nonlinear_model.py
 
 Created with Python 3.8.5
 with the following libraries
