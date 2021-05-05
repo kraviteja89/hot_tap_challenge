@@ -27,7 +27,7 @@
 
 \section{Problem statement}
 
-Hot tapping \autocitel{twi} (or pressure tapping) is the method of connecting to a "live" pipeline or tank containing a pressurized fluid, without removing the pipe or tank from service. When welding is used to add attachments to a pipeline during hot tapping, the heat transfer around the weld could me a major concern. If the unmelted portion of pipe wall beneath the weld is not thick enough, it might not withstand the pressure of the fluid. In some cases, the excess cooling provided by the flowing liquid could lead to cold cracking of the weld. Thermal models are often used to simulate the head transfer around the welds to estimate the safe operating ranges for heating rates to prevent burn through and cold cracking\autocitel{bruce2006comparison}.\\  
+Hot tapping \autocitel{twi} (or pressure tapping) is the method of connecting to a "live" pipeline or tank containing a pressurized fluid, without removing the pipe or tank from service. When welding is used to add attachments to a pipeline during hot tapping, the heat transfer around the weld could be a major concern. If the unmelted portion of pipe wall beneath the weld is not thick enough, it might not withstand the pressure of the fluid. In some cases, the excess cooling provided by the flowing liquid could lead to cold cracking of the weld. Thermal models are often used to simulate the heat transfer around the welds to estimate the safe operating ranges for heating rates to prevent burn through and cold cracking\autocitel{bruce2006comparison}.\\  
 
 \begin{wrapfigure}[25]{r}{0.48\textwidth}
 	\centering
@@ -70,7 +70,7 @@ $f_{max}$ & 1350 & $BTU/s-in^3$ & maximum heat generated
 \begin{align}
 \rho c_p \pdv{u}{t} &= \kappa \laplacian{u} + f(r, z, t) \qquad \qquad in~ \Omega = \Omega_s \cup \Omega_p \cup \Omega_w  \label{heatEqn}   \\
 f(r, z, t) &= \begin{cases}
-f_{max} (1 + \cos{\frac{\pi}{5}(t + 5)}) \qquad & in ~ \Omega_w \\
+\frac{f_{max}}{2} (1 + \cos{\frac{\pi}{5}(t + 5)}) \qquad & in ~ \Omega_w \\
 0  \qquad & in ~  \Omega_s\cup\Omega_p
 \end{cases} \label{heatSource}
 \end{align}
@@ -84,7 +84,7 @@ on ~\Gamma_p \qquad -\kappa \pdv{u}{n} &= h_p(u - u_p)\label{gPro}
 \end{align}
 
 \subsection{Weak form}
- For the weak formulation, we define the functional space $V$ (equation \ref{vSpaces}), where $d = 2,3$ is the number of spatial dimensions in the problem. Since there are no Dirichlet boundary conditions in this problem, the trail functions $u$ and the test functions $v$ are taken from the same space. The weak form is given by equation \ref{weakEqn}, where the bilinear and linear forms are defined by equations \ref{bilinear} and \ref{linear} respectively, where the volume and surface elements are represented by $dx$ and $ds$ respectively. 
+ For the weak formulation, we define the functional space $V$ (equation \ref{vSpaces}), where $d = 2,3$ is the number of spatial dimensions in the problem. Since there are no Dirichlet boundary conditions in this problem, the trail functions $u$ and the test functions $v$ are taken from the same space. The weak form is given by equation \ref{weakEqn}, and the bilinear and linear forms are defined by equations \ref{bilinear} and \ref{linear} respectively, where the volume and surface elements are represented by $dx$ and $ds$ respectively. 
 
 \begin{align}
 \mathcal{V} &:= \qty{u \in L^2(\Omega) ~|~ \grad u \in L^{2}(\Omega)^d}\label{vSpaces} 
@@ -107,8 +107,9 @@ L(v) &= \int_\Omega f(r,z,t^{n+1})  v ~dt ~dx + \int_{\Gamma_a} h_a u_a v ~dt ~d
 
 The geometry is created using regular 2D shapes in the \textit{mshr} module (\textit{Rectangle} for the pipe and sleeve,  and \textit{Polygon} for the weld). Subdomains are created in the combined geometry for the three regions so that the mesh generated also has these subdomains. Three boundary subdomains are created to represent $\Gamma_i$, $\Gamma_a$ and $\Gamma_p$. 
 
-This model is 2D axisymmetric,which means that the 2D geometry in the model represents the physical 3D shape. This is achieved by assuming that none of the variables in the model change in the circumferential direction and modifying the volume and surface integrals accordingly. The volume and surface integrals for any function have to be modified as specified in equations \ref{volInt} and \ref{surfInt} respectively, where $dX$ and $dS$ are the area and line integrals in the 2D axisymmetric geometry. In FEniCS, this is implemented by multiplying each term by $2 pi x[0]$
+This model is 2D axisymmetric,which means that the 2D geometry in the model represents the physical 3D object. This is achieved by assuming that none of the variables in the model change in the circumferential direction and by modifying the volume and surface integrals accordingly. The volume and surface integrals for any function have to be modified as specified in equations \ref{volInt} and \ref{surfInt} respectively, where $dX$ and $dS$ are the area and line integrals in the 2D axisymmetric geometry. In FEniCS, this is implemented by multiplying each integrand by $2 \pi x[0]$
 
+A time step of $0.01s$ was used for the time-dependent linear problem. 
 \begin{align}
 \int_{\Omega_s} f dx &= \int_{\Omega_s} g (2 \pi r) dX \label{volInt} \\
 \int_{\Gamma_s} g ds &= \int_{\Omega_s} g (2 \pi r) dS \label{surfInt}
@@ -145,7 +146,7 @@ L(v) &= \int_{\Gamma_a} h_a u_a v ~ds + \int_{\Gamma_p} h_p u_p v ~ds \label{ini
 
 
 \subsection{Heat affected zone}
-	The results of the model with the modified cooling rate are shown in figure \ref{fig3}. The depth in figure \ref{fig3}a represents the distance of the point of temperature measurement from the weld. The points are chosen along the centerline of the weld. The heat affected zone (HAZ) spans the entire thickness of the pipeline, assuming a cutoff of $1475 \degree F$ ($1075 K$)\autocitel{cheng2004weld}for the HAZ. The weld material heats up and reaches melting temperature within 4 seconds,while the weld pool starts forming at the pipe  and sleeve in in 5 and 4.5 seconds respectively. The cooling effect of the fluid in the pipeline is depicted by the difference in temperature history between the sleeve and the pipe. \\ 
+	The results of the model with the modified heating rate are shown in figure \ref{fig3}. The depth in figure \ref{fig3}a represents the distance of the point of temperature measurement from the weld, where the points are chosen along the centerline of the weld. The heat affected zone (HAZ) spans the entire thickness of the pipeline, assuming a cutoff of $1475 \degree F$ ($1075 K$)\autocitel{cheng2004weld} for the HAZ. The weld material heats up and reaches melting temperature within 4 seconds, while the weld pool starts forming at the pipe  and sleeve in in 5 and 4.5 seconds respectively. The depth of weld pool in the pipe is $0.05 in$. The cooling effect of the fluid in the pipeline is depicted by the difference in temperature history between the sleeve and the pipe. \\ 
 	These temperature profiles can be used as an input for a microstructure model(see discussion) to estimate the possibility of cold cracking. Alternatively, the peak temperatures and the cooling time between $1500-1000 \degree F$ ($800-500 \degree C$)can be used to estimate the possibility of cold cracking \autocitel{lobanov2013formation}. 
 
 \begin{figure}[h]
@@ -156,12 +157,12 @@ L(v) &= \int_{\Gamma_a} h_a u_a v ~ds + \int_{\Gamma_p} h_p u_p v ~ds \label{ini
 \end{figure}
 
 \section{Discussion}
-The simulation presented here has several limitations. It is based on a linear heat transfer model and does not simulate the latent heat of melting and solidification, the interface between the solid and fluid phases and the the formation of different metallurgical phases. The fluid flow in the pipes is not explicitly modeled and therefore the effect of the fluid flow on the cooling rate and the effect of heating on the fluid flow cannot be fully understood by this model. The heating of the weld element is assumed to be a volumetric heat term, while in reality welding is performed by passing a heating element over the weld zone. Finally, the assumptions of the geometry made in this model are not completely true-to-life, as the geometry of attachments to pipelines are not usually symmetric around the pipe's axis. Some of these limitations will be addressed here. 
+The simulation presented here has several limitations. It is based on a linear heat transfer model and does not simulate the latent heat of melting and solidification, the interface between the solid and fluid phases and the the formation of different metallurgical phases. The fluid flow in the pipes is not explicitly modeled and therefore the effect of the fluid flow on the cooling rate and the effect of heating on the fluid flow cannot be fully understood by this model. The heating of the weld element is assumed to be a volumetric heat term, while in reality welding is performed by passing a heating element over the weld zone. Finally, the assumptions of the geometry made in this model are not completely true-to-life, as the geometry of attachments to pipelines are not always symmetric around the pipe's axis. Some of these limitations will be addressed here. 
 
 \subsection{Fluid flow modeling}
-In this simulation, the heat transfer at the wall of the pipeline is modeled by means of a single constant $h_p$, which is the heat transfer coefficient of the fluid in the pipe. This kind of model is usually sufficient to understand the heat transfer in the pipe wall and the heat transfer coefficient can be changed based on the Nusselt number of the fluid flow in the pipe. There are several models available for the calculation of the Nusslet number for laminar and turbulent flows \autocitel{nagy2018basic}. This lumped parameter model can be replaced by explicit models of fluid flow and heat transfer using the convection-diffusion equation. However, fluid flow simulations can be computationally expensive, especially in the turbulent flow regime and therefore the lumped parameter model used here should be preferred.
+In this simulation, the heat transfer at the wall of the pipeline is modeled by means of a single constant $h_p$, which is the heat transfer coefficient of the fluid in the pipe. This kind of model is usually sufficient to understand the heat transfer in the pipe wall and the heat transfer coefficient can be changed based on the Nusselt number of the fluid flow in the pipe. There are several models available for the calculation of the Nusslet number for laminar and turbulent flows \autocitel{nagy2018basic}. This lumped parameter model can be replaced by explicit models of flow and heat transfer in the fluid using the convection-diffusion equation. However, fluid flow simulations can be computationally expensive, especially in the turbulent flow regime and therefore the lumped parameter model used here should be preferred.
 
-Fluid flow and heat transfer in gas-fluid mixtures can be very complicated depending on the gas/fluid ratio and the inclination of the pipeline, as gravity plays an important role in the separation of the phases \autocitel{zhang2006unified}. These models can also be computationally expensive and can be replaced by heat transfer coefficients calculated based on experimental data for different gas/fluid ratios and pipe inclinations\autocitel{kim1999comparison}{kim2002heat}{ghajar2010importance}. 
+Fluid flow and heat transfer in gas-fluid mixtures can be very complicated depending on the gas/fluid ratio and the inclination of the pipeline, as gravity plays an important role in the separation of the phases \autocitel{zhang2006unified}. These models can also be computationally expensive and can be replaced by heat transfer coefficients calculated based on experimental data for different gas/fluid combinations, volume fractions and pipe inclinations\autocitel{kim1999comparison}{kim2002heat}{ghajar2010importance}. 
  
 
 \subsection{3D modeling}
@@ -184,7 +185,7 @@ q(x,y,z,t) &= \frac{6\sqrt{3}f_bQ}{abc\pi^{\frac{3}{2}}}e^{-3x^2/a^2}e^{-3y^2/a^
 \subsection{Modeling latent heat}
 	The model presented in the previous section does not simulate the effect of change in enthalpy during melting. There are several methods of simulating the effect of enthalpy. One of the most technically sound method is to solve the Stephan problem, where the solid and fluid phases around the melt pool and heat transfer their interface is explicitly modeled \autocitel{kasuya1997stefan}. The Stephan problem can be computationally expensive and there are several simplified models, where a temperature-dependent capacitance is used to account for the enthalpy change during heating with spatial or temporal averaging \autocitel{pham1995comparison}.
 	
-	I chose to model total enthalpy ($H(u)$) at temperature $u$, which is a function of phase and temperature, by a smooth sigmoid function (equation \ref{enthalpy}). In equation \ref{enthalpy}, $c_{p1}$ is the specific heat due to temperature and $c_{p1}$ is the latent heat. The sigmoid function is centered around the melting point$u_{melt}$  and smoothed by the factor $a_{c_p}$. For the $n^{th}$ time step the effective specific heat is given by equation \ref{spec}, which was proposed by Morgan \textit{et al}\autocitel{morgan1978improved}. A specific heat of $106 BTU/lb$ was used  
+	I chose to model total enthalpy ($H(u)$) at temperature $u$, which is a function of phase and temperature, by a smooth sigmoid function (equation \ref{enthalpy}). In equation \ref{enthalpy}, $c_{p1}$ is the specific heat due to temperature and $c_{p1}$ is the latent heat. The sigmoid function is centered around the melting point$u_{melt}$  and smoothed by the factor $a_{c_p}$. For the $n^{th}$ time step the effective specific heat is given by equation \ref{spec}, which was proposed by Morgan \textit{et al}\autocitel{morgan1978improved}. A specific heat of $106 BTU/lb$ was used. Since more accuracy is required here, a time step of $0.0001s$ was used for this simulation.  
 	
 \begin{align}
 H(u) &= c_{p1} u + c_{p2} \frac{1}{1 + e^{-a_{c_p}(u - u_{melt})}} \label{enthalpy} \\
@@ -193,6 +194,8 @@ c_{p1} \qquad \qquad \qquad if ~u^n = u^{n-1} \\
 \frac{H(u^n) - H(u^{n-1})}{u^n - u^{n-1}}
  ~~~ if ~u^n \neq u^{n-1} \end{cases}\label{spec}
 \end{align}    
+
+The results for the nonlinear heat capacitance model are shown in figure 4. The temperatures predicted in this model are slightly lower than those predicted by the linear model, with a $0.04 in$ deep of the weld pool in the pipe.
 
 
 
