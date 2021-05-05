@@ -146,7 +146,7 @@ L(v) &= \int_{\Gamma_a} h_a u_a v ~ds + \int_{\Gamma_p} h_p u_p v ~ds \label{ini
 
 
 \subsection{Heat affected zone}
-	The results of the model with the modified heating rate are shown in figure \ref{fig3}. The depth in figure \ref{fig3}a represents the distance of the point of temperature measurement from the weld, where the points are chosen along the centerline of the weld. The heat affected zone (HAZ) spans the entire thickness of the pipeline, assuming a cutoff of $1475 \degree F$ ($1075 K$)\autocitel{cheng2004weld} for the HAZ. The weld material heats up and reaches melting temperature within 4 seconds, while the weld pool starts forming at the pipe  and sleeve in in 5 and 4.5 seconds respectively. The depth of weld pool in the pipe is $0.05 in$. The cooling effect of the fluid in the pipeline is depicted by the difference in temperature history between the sleeve and the pipe. \\ 
+	The results of the model with the modified heating rate are shown in figure \ref{fig3}. The depth in figure \ref{fig3}a represents the distance of the point of temperature measurement from the weld, where the points are chosen along the centerline of the weld. The heat affected zone (HAZ) spans the entire thickness of the pipeline, assuming a cutoff of $1475 \degree F$ ($1075 K$)\autocitel{cheng2004weld} for the HAZ. The weld material heats up and reaches melting temperature within 4 seconds, while the weld pool starts forming at the pipe  and sleeve in in 5 and 4.5 seconds respectively. The depth of weld pool in the pipe is $0.06 in$. The cooling effect of the fluid in the pipeline is depicted by the difference in temperature history between the sleeve and the pipe. \\ 
 	These temperature profiles can be used as an input for a microstructure model(see discussion) to estimate the possibility of cold cracking. Alternatively, the peak temperatures and the cooling time between $1500-1000 \degree F$ ($800-500 \degree C$)can be used to estimate the possibility of cold cracking \autocitel{lobanov2013formation}. 
 
 \begin{figure}[h]
@@ -195,9 +195,14 @@ c_{p1} \qquad \qquad \qquad if ~u^n = u^{n-1} \\
  ~~~ if ~u^n \neq u^{n-1} \end{cases}\label{spec}
 \end{align}    
 
-The results for the nonlinear heat capacitance model are shown in figure 4. The temperatures predicted in this model are slightly lower than those predicted by the linear model, with a $0.04 in$ deep of the weld pool in the pipe.
+The results for the nonlinear heat capacitance model are shown in figure 4. The temperatures predicted in this model are slightly lower than those predicted by the linear model, with a $0.04 in$ deep of the weld pool in the pipe. Even though the maximum temperatures are lower in the nonlinear model, the cooling rate in the weld is lower. This could be attributed to the lower temperature gradients near the inner wall of the pipeline.
 
-
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=14 cm]{nonlinear_results.png}
+	\caption{ Temperature history predicted by the nonlinear model}
+	\label{fig4}
+\end{figure}
 
 
 \end{document}
